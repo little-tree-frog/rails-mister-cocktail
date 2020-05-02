@@ -17,9 +17,16 @@ drinks = JSON.parse(drinks_serialised)
 puts "Starting seed"
 Ingredient.destroy_all
 
+ingredient_list = []
+
 drinks["drinks"].each do |ingredient|
-  ingred = Ingredient.create(name: ingredient["strIngredient1"])
-  puts ingred.name
+  ingredient_list << Ingredient.create(name: ingredient["strIngredient1"])
+end
+
+Cocktail.destroy_all
+
+15.times do
+  Cocktail.create(name: Faker::Coffee.blend_name)
 end
 
 puts "Finished seed"
