@@ -9,24 +9,26 @@
 require 'json'
 require 'open-uri'
 
-url = "https://www.thecocktaildb.com/api/json/v1/1/list.php?i=list"
-
-drinks_serialised = open(url).read
-drinks = JSON.parse(drinks_serialised)
-
 puts "Starting seed"
+Cocktail.destroy_all
 Ingredient.destroy_all
 
-ingredient_list = []
-
-drinks["drinks"].each do |ingredient|
-  ingredient_list << Ingredient.create(name: ingredient["strIngredient1"])
-end
-
-Cocktail.destroy_all
+url = "https://www.thecocktaildb.com/api/json/v1/1/random.php"
 
 15.times do
-  Cocktail.create(name: Faker::Coffee.blend_name)
+  drink_serialised = open(url).read
+  drink = JSON.parse(drink_serialised)
+
+  drink["drinks"].each do |info|
+    cocktail = Cocktail.create!(name: info["strDrink"])
+    15.times do |i|
+      if info["strIngredient#{i}"] != nil
+        ingredient = Ingredient.create!(name: info["strIngredient#{i}"])
+        dose = Dose.create!(description: info["strMeasure#{i}"], cocktail: cocktail, ingredient: ingredient)
+      end
+    end
+    puts cocktail.name
+  end
 end
 
 puts "Finished seed"
